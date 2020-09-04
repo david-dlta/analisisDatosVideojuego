@@ -1,0 +1,76 @@
+---
+title: "Analisis datos videojuego"
+author: "David de la Torre"
+date: "3/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Objetivo
+
+El objetivo de este documento es contestar a las preguntas qwue componen cada uno de los ejercicios que figuran a continuación. Con estos ejecicios se pretende demostrar la capacidad de calculo y análisis der metricas comunes en el el ámbito de los videojuegos.
+
+Los datos necesarios para resolver los ejercicios se encuentran en la carpeta _datos_ del proyecto.
+
+## Ejercicio 1: Análisis de datos de sesión
+
+1.  Obtener algunas métricas por país:
+  + Media de sesiones, tiempo medio jugado, tiempo jugado por sesión, niveles completados
+  + % Pagadores, ARPDAU, ARPU, ARPPU. . .
+2. Distribución de alguna métrica que consideres interesante.
+3. Comportamiento de la media de sesiones y tiempo medio jugado por sesión del día 0 VS el resto de días.
+4. Análisis exploratorio de los datos. Conclusiones.
+
+Lo primero antes de comenzar a resolver las cuestiones es importar los datos facilitados. Para ello utilizaremos el paquete readr. Este paquete nos permite leer archivos en formato _CSV_. El códig a continuación comprueba si el paquete se encuentra instalado, en caso de que no se encuentre lo instala, y posteriormente lo importa.
+
+```{r,message=FALSE}
+if(!require(readr)) install.packages(readr)
+library(readr)
+```
+
+Podemos proceder a importar los datos y almacenarolos en la variable _datos_ej1_.
+
+```{r, message=FALSE}
+datos_ej1 = read_delim("datos/task1.1.csv",";")
+```
+
+Ahora que ya contamos con los datos en forma de tabla podemos proceder a resolver los ejercicios. Pero antes debemos importar un paquete que nos permita operar, limpiar, ordenar, agrupar, ... los datos. Con el siguiente código instalamos, si fuese necesario necesario, e importamos el paquete.
+
+```{r message=FALSE}
+if(!require(dplyr)) install.packages(dplyr)
+library(dplyr)
+```
+
+
+### 1.1 Obtener algunas métricas por país
+
+La media de sesiones, tiempo medio jugado, tiempo jugado por sesión, niveles completados lo obtenemos de la siguiente manera:
+
+```{r}
+mediaSesiones <- datos_ej1 %>%
+  select(COUNTRY,ID_SESSION) %>%
+ # group_by(COUNTRY) %>%
+  #summarise(
+  # count(ID_SESSION)
+  #) %>%
+  
+tiempoMedioJugado <- datos_ej1 %>%
+  select(COUNTRY,ID_SESSION,GAME_TIME) %>%
+  group_by()
+```
+
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
