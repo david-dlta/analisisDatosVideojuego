@@ -51,15 +51,30 @@ La media de sesiones, tiempo medio jugado, tiempo jugado por sesión, niveles co
 
 ```{r}
 mediaSesiones <- datos_ej1 %>%
-  select(COUNTRY,ID_SESSION) %>%
+  select(COUNTRY,ID_SESSION)
  # group_by(COUNTRY) %>%
   #summarise(
   # count(ID_SESSION)
   #) %>%
-  
+
 tiempoMedioJugado <- datos_ej1 %>%
+  select(COUNTRY,GAME_TIME) %>%
+  group_by(COUNTRY) %>%
+  summarise(
+    sum_GAME_TIME = sum(GAME_TIME),
+    n = n(),
+    mediaMs = sum_GAME_TIME/n
+  )
+  
+tiempoMedioJugadoSesion <- datos_ej1 %>%
   select(COUNTRY,ID_SESSION,GAME_TIME) %>%
-  group_by()
+  group_by(COUNTRY, ID_SESSION) %>%
+  summarise(
+    sum_GAME_TIME = sum(GAME_TIME),
+    n = n(),
+    mediaMs = sum_GAME_TIME/n
+  )
+  
 ```
 
 
