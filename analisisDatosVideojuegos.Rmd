@@ -49,7 +49,7 @@ library(dplyr)
 
 La media de sesiones, tiempo medio jugado, tiempo jugado por sesión, niveles completados lo obtenemos de la siguiente manera:
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 mediaSesiones <- datos_ej1 %>%
   select(COUNTRY,ID_SESSION)
  # group_by(COUNTRY) %>%
@@ -61,9 +61,7 @@ tiempoMedioJugado <- datos_ej1 %>%
   select(COUNTRY,GAME_TIME) %>%
   group_by(COUNTRY) %>%
   summarise(
-    sum_GAME_TIME = sum(GAME_TIME),
-    n = n(),
-    mediaMs = sum_GAME_TIME/n
+    media_GAME_TIME = mean(GAME_TIME)
   )
   
 tiempoMedioJugadoSesion <- datos_ej1 %>%
@@ -72,13 +70,89 @@ tiempoMedioJugadoSesion <- datos_ej1 %>%
   summarise(
     sum_GAME_TIME = sum(GAME_TIME),
     n = n(),
-    mediaMs = sum_GAME_TIME/n
+    medMs = sum_GAME_TIME/n
+  ) %>%
+  select(COUNTRY,medMs) %>%
+  group_by(COUNTRY) %>%
+  summarise(
+    sum_medMS = sum(medMs),
+    n2 = n(),
+    mediaMS =sum_medMS/n2
+  )
+
+nivelesCompletados <- datos_ej1 %>%
+  select(COUNTRY,COMPLETED_LEVELS) %>%
+  group_by(COUNTRY) %>%
+  summarise(
+    media_COMPLETED_LEVELS = mean(COMPLETED_LEVELS)
   )
   
 ```
 
 
+Y los resuyltados de las operaciones anteriores serían:
 
+```{r}
+mediaSesiones
+
+tiempoMedioJugado
+
+tiempoMedioJugadoSesion
+
+nivelesCompletados
+```
+
+
+### 1.2 Distribución de alguna métrica uqe consideres interesante
+
+Para estudiar la distribución de las variables vamos a hacerlo de manera gráfica. Para ello necesitamos un paquete que nos permita realizar visualizaciones. Con el siguiente código instalamos el paquete necesario.
+
+```{r message=FALSE}
+if(!require(ggplot2)) install.packages(ggplot2)
+library(ggplot2)
+
+if(!require(patchwork)) install.packages(patchwork)
+library(patchwork)
+```
+
+Una vez importado el paquete necesario podemos proceder a realizar visualizaciones que nos faciliten la comprensión de los datos, en este caso la distribución de estos. Para ello utilizaremos diagramas de cajas.
+
+Con el siguiente código generamos un diagrama de cajas para cada una de las variables.
+
+```{r}
+config.estilosBoxPlot <- list(
+  theme(
+    axis.text.y  = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+)
+```
+
+```{r}
+g_disp_GAME_TIME <- datos_ej1 %>% 
+  mutate(
+    GAME_TIME_S = GAME_TIME/1000
+  ) %>%
+  ggplot() +
+  geom_boxplot(aes(x = GAME_TIME_S)) +
+  config.estilosBoxPlot
+
+g_disp_GAME_TIME
+
+```
+Podemos ver que la distribución de los datos 
+
+```{r}
+
+ g_disp_COMPLETED_LEVELS <- datos_ej1 %>% 
+  ggplot() +
+  geom_boxplot(aes(x = COMPLETED_LEVELS)) +
+  config.estilosBoxPlot
+
+g_disp_COMPLETED_LEVELS
+
+```
+Podemos ver que en este caso la mayoría de los datos se distribuyen entre 0 y 4 niveles. Lo que nos indica que la mayoría de jugadores se estancan en el nivel 4. También nos encontramos con _outliers_, que son valores a tipicos que tendremos que tender en cuenta a la hora de realizar cualquier análisis.
 
 ## Including Plots
 
@@ -89,3 +163,4 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+aaa
