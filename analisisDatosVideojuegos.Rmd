@@ -140,7 +140,8 @@ g_disp_GAME_TIME <- datos_ej1 %>%
 g_disp_GAME_TIME
 
 ```
-Podemos ver que la distribución de los datos 
+
+Podemos ver que la distribución de los datos .
 
 ```{r}
 
@@ -152,7 +153,97 @@ Podemos ver que la distribución de los datos
 g_disp_COMPLETED_LEVELS
 
 ```
+
 Podemos ver que en este caso la mayoría de los datos se distribuyen entre 0 y 4 niveles. Lo que nos indica que la mayoría de jugadores se estancan en el nivel 4. También nos encontramos con _outliers_, que son valores a tipicos que tendremos que tender en cuenta a la hora de realizar cualquier análisis.
+
+### 1.3. Comportamiento de la media de sesiones y tiempo medio jugado por sesión del día 0 VS el resto de días.
+
+```{r}
+m <- datos_ej1 %>%
+  group_by(SESSION_DATE) %>%
+  summarise(
+    n=n(),
+    media = mean(n)
+  )
+
+tMJ <- datos_ej1 %>%
+  select(SESSION_DATE,GAME_TIME) %>%
+  group_by(SESSION_DATE) %>%
+  summarise(
+    n= n(),
+    media_tiempo_jugado = mean(GAME_TIME)
+  ) %>%
+  arrange(SESSION_DATE)
+```
+```{r}
+#sesiones repetidas
+
+datos_ej1 %>%
+  select(ID_SESSION, SESSION_DATE) %>%
+  group_by(ID_SESSION, SESSION_DATE) %>%
+  summarise(
+    n = n()
+  ) %>%
+  filter(n>1)
+```
+
+### 1.4 EDA (Exploratory Data Analysis)
+
+Empezamos por comprobar si existe algun valor vacio dentro de los datos, para ello ejecutamos el siguiente código.
+
+```{r}
+sum(is.na(datos_ej1))
+```
+Como podemos comprobar el resultado es 0. En este caso los datos ya se encuentran "limpios" de cualquier valor vacío y no deberemos tenerlos en cuenta.
+
+A continuación vamos a estudiar las distribuciones de algunas de las variables de las que disponemos. En el ejercicio 2 ya hemos estudiado la distribución de las variables _GAME_TIME_ y _COMPLETED_LEVELS_. Como novedad podemos observar que la mayoría de los ingresos son 0 aun que podemos ver que hay varios que superan los cientos llegando algunos a los miles.
+
+
+```{r}
+g_disp_REVENUE <- datos_ej1 %>% 
+  ggplot() +
+  geom_boxplot(aes(x = REVENUE)) +
+  config.estilosBoxPlot
+
+g_disp_GAMETIME <- datos_ej1 %>% 
+  ggplot() +
+  geom_boxplot(aes(x = GAME_TIME)) +
+  config.estilosBoxPlot
+
+g_disp_COMPLETED_LEVELS <- datos_ej1 %>% 
+  ggplot() +
+  geom_boxplot(aes(x = COMPLETED_LEVELS)) +
+  config.estilosBoxPlot
+
+g_disp_REVENUE/g_disp_GAMETIME/g_disp_COMPLETED_LEVELS
+```
+Viendo la sitribución de los ingresos nos lleva a pensar si existe algun tipo de relación entre los ingresos y el tiempo de las sesiones. ¿Los usuarios que ingresan más dinero en el juego son los que tienen las sesiones más largas?¿Existe alguna relación?
+
+```{r}
+covSessRev <- datos_ej1 %>%
+  select(ID_USER, ID_SESSION,GAME_TIME,REVENUE) %>%
+  ggplot() +
+  geom_point(aes(x=GAME_TIME/1000, y=REVENUE))
+```
+
+No podemos observar una relación directa entre el tiempo jugado y los ingresos que el juego genera.
+
+También vamos a estudiar si EXISTE una relación entre los días que la aplicación lleva instalada en el dispositivo y el tiempo de las sesiones.
+
+```{r}
+covDayGameTime <- datos_ej1 %>%
+  select(INSTALL_DATE,SESSION_DATE,GAME_TIME,COMPLETED_LEVELS) %>%
+  ggplot() +
+  geom_point(aes(x=GAME_TIME/1000, y=COMPLETED_LEVELS))
+```
+
+```{r}
+covLevGameTime <- datos_ej1 %>%
+  select(ID_USER, ID_SESSION,GAME_TIME,COMPLETED_LEVELS,COUNTRY) %>%
+  ggplot() +
+  geom_point(aes(x=GAME_TIME/1000, y=COMPLETED_LEVELS, color = COUNTRY))
+```
+
 
 ## Including Plots
 
