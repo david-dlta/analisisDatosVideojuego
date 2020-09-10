@@ -10,8 +10,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Objetivo
+El documento se engloba dentro de una serie de documentos de análisis de datos de videojuegos.
 
-El objetivo de este documento es contestar a las preguntas qwue componen cada uno de los ejercicios que figuran a continuación. Con estos ejecicios se pretende demostrar la capacidad de calculo y análisis der metricas comunes en el el ámbito de los videojuegos.
+El objetivo de este documento es contestar a las preguntas que componen el ejercicio 1.Con este ejercicio se pretende analizar datos y calcular métricas de sesiones.
 
 Los datos necesarios para resolver los ejercicios se encuentran en la carpeta _datos_ del proyecto.
 
