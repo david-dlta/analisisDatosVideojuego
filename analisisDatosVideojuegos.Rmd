@@ -1,5 +1,5 @@
 ---
-title: "Analisis datos videojuego"
+title: "Analisis datos videojuego, ejercico 1"
 author: "David de la Torre"
 date: "3/9/2020"
 output: html_document
@@ -9,8 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Introducción
+
+El documento se engloba dentro de una serie de documentos de análisis de datos de videojuegos.En esta serie se estudian varias metricas e indicadores comunes en el negocio de los videojuegos. Este es el primero de 3 documentos.
+
+
 # Objetivo
-El documento se engloba dentro de una serie de documentos de análisis de datos de videojuegos.
 
 El objetivo de este documento es contestar a las preguntas que componen el ejercicio 1.Con este ejercicio se pretende analizar datos y calcular métricas de sesiones.
 
@@ -136,6 +140,7 @@ g_disp_GAME_TIME <- datos_ej1 %>%
   ) %>%
   ggplot() +
   geom_boxplot(aes(x = GAME_TIME_S)) +
+  theme_classic() +
   config.estilosBoxPlot
 
 g_disp_GAME_TIME
@@ -149,6 +154,7 @@ Podemos ver que la distribución de los datos .
  g_disp_COMPLETED_LEVELS <- datos_ej1 %>% 
   ggplot() +
   geom_boxplot(aes(x = COMPLETED_LEVELS)) +
+  theme_classic() +
   config.estilosBoxPlot
 
 g_disp_COMPLETED_LEVELS
@@ -204,16 +210,19 @@ A continuación vamos a estudiar las distribuciones de algunas de las variables 
 g_disp_REVENUE <- datos_ej1 %>% 
   ggplot() +
   geom_boxplot(aes(x = REVENUE)) +
+  theme_classic() +
   config.estilosBoxPlot
 
 g_disp_GAMETIME <- datos_ej1 %>% 
   ggplot() +
   geom_boxplot(aes(x = GAME_TIME)) +
+  theme_classic() +
   config.estilosBoxPlot
 
 g_disp_COMPLETED_LEVELS <- datos_ej1 %>% 
   ggplot() +
   geom_boxplot(aes(x = COMPLETED_LEVELS)) +
+  theme_classic() +
   config.estilosBoxPlot
 
 g_disp_REVENUE/g_disp_GAMETIME/g_disp_COMPLETED_LEVELS
@@ -221,38 +230,57 @@ g_disp_REVENUE/g_disp_GAMETIME/g_disp_COMPLETED_LEVELS
 Viendo la sitribución de los ingresos nos lleva a pensar si existe algun tipo de relación entre los ingresos y el tiempo de las sesiones. ¿Los usuarios que ingresan más dinero en el juego son los que tienen las sesiones más largas?¿Existe alguna relación?
 
 ```{r}
-covSessRev <- datos_ej1 %>%
+corrSessRev <- datos_ej1 %>%
   select(ID_USER, ID_SESSION,GAME_TIME,REVENUE) %>%
   ggplot() +
+  theme_classic() +
   geom_point(aes(x=GAME_TIME/1000, y=REVENUE))
+
+corrSessRev
 ```
 
-No podemos observar una relación directa entre el tiempo jugado y los ingresos que el juego genera.
+No podemos observar una relación directa entre el tiempo jugado y los ingresos que el juego genera. Vemos que los ingresos de 0 se distribuyen a lo largo de todos los tiempos. No podemos observar ningun patrón en la distribución de lo singresos.
 
-También vamos a estudiar si EXISTE una relación entre los días que la aplicación lleva instalada en el dispositivo y el tiempo de las sesiones.
+También vamos a estudiar si existe una relación entre los días que la aplicación lleva instalada en el dispositivo y el tiempo de las sesiones.
+
 
 ```{r}
-covDayGameTime <- datos_ej1 %>%
-  select(INSTALL_DATE,SESSION_DATE,GAME_TIME,COMPLETED_LEVELS) %>%
+corrDayGameTime <- datos_ej1 %>%
+  mutate(
+    DAY_DIFF = as.Date(SESSION_DATE, "%d/%m/%Y") - as.Date(INSTALL_DATE, "%d/%m/%Y")
+  ) %>%
+  select(INSTALL_DATE,SESSION_DATE,GAME_TIME,COMPLETED_LEVELS,DAY_DIFF) %>%
   ggplot() +
-  geom_point(aes(x=GAME_TIME/1000, y=COMPLETED_LEVELS))
+  theme_classic() +
+  geom_point(aes(x=GAME_TIME/1000, y=DAY_DIFF))
+
+corrDayGameTime
 ```
 
+Podemos observar que cuanto mas tiempo lleva instalado el juego en el dispositivo tiende a disminuir el tiempo que duran las sesiones.
+
+Por último vamos a investigar si existe correlación entre el tiempo de las sesiones y la cantidad de niveles completados. Y adicionalmente vamos a estudiar si existe alguna correlacion con los paises de los jugadores.
+
+
 ```{r}
-covLevGameTime <- datos_ej1 %>%
+corrLevGameTime <- datos_ej1 %>%
   select(ID_USER, ID_SESSION,GAME_TIME,COMPLETED_LEVELS,COUNTRY) %>%
   ggplot() +
+  theme_classic() +
   geom_point(aes(x=GAME_TIME/1000, y=COMPLETED_LEVELS, color = COUNTRY))
+
+corrLevGameTime
 ```
+Aquí sí que podemos ver que existe una correlación. Podemos decir que la cantidad de niveles superados por los jugadores depende del tiempo de la sesión. Esto tiene cierta lógica, ya que es imposible conseguir superara una gran cantidad de niveles en un corto tiempo. Por muy bueno que sea el jugador lo sniveles tienen un tiempo mínimo para ser completados.
 
+Por otra parte podemos decir que la cantidad de niveles superados y el tiempode cada sesión no guardan relación con la nacionalidad del jugador. No podemos observar ningún patrón en los datos que nos permita afirmar lo contrario.
 
-## Including Plots
+```{r}
+corrLevGameTime2 <- datos_ej1 %>%
+  select(ID_USER, ID_SESSION,GAME_TIME,COMPLETED_LEVELS,COUNTRY) %>%
+  ggplot(aes(x=GAME_TIME/1000, y=COMPLETED_LEVELS)) +
+  geom_point() +
+  stat_bin2d(aes(fill = after_stat(count)), binwidth = c(3,1))
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+corrLevGameTime2
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-aaa
