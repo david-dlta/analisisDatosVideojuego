@@ -94,8 +94,7 @@ nivelesCompletados <- datos_ej1 %>%
   
 ```
 
-
-Y los resuyltados de las operaciones anteriores serían:
+Y los resuyltados de las métricas anteriores serían:
 
 ```{r}
 mediaSesiones
@@ -105,6 +104,92 @@ tiempoMedioJugado
 tiempoMedioJugadoSesion
 
 nivelesCompletados
+```
+Ahora vamos a calcular el segundo grupo de métricas que se pide. Estas son métricas para explicar los  ingresos en la aplicación. Vamos a calcularlas por separado.
+
+Comencemos por la métrica % de Pagadores
+
+```{r message=FALSE, warning=FALSE}
+nPagadores <- datos_ej1 %>%
+  filter(REVENUE > 0) %>%
+  group_by(COUNTRY) %>%
+  summarise(
+    nPag = n()
+  )
+
+nJugadores <- datos_ej1 %>%
+  select(COUNTRY,ID_USER,REVENUE) %>%
+  group_by(COUNTRY) %>%
+  summarise(
+    n = n()
+  )
+
+porcPagadores <- inner_join(nPagadores, nJugadores, by = "COUNTRY") %>%
+  mutate(
+    porcPagadores = (nPag / n) * 100
+  ) %>%
+  select(COUNTRY, porcPagadores)
+
+```
+Continuamos calculando la métrica ARPU (Average Revenue Per User). Es la manera más rápida para observar como la apliacción se está comportando y es muy útil para observar la efectividad de campañas. Para calcularlo tenemos que sacar el total de ingresos de la aplicación y dividirlo entre el numero de usuarios (instalaciones).
+
+```{r message=FALSE, warning=FALSE}
+ARPU <- datos_ej1 %>%
+  select(COUNTRY, ID_USER, REVENUE) %>%
+  group_by(COUNTRY, ID_USER) %>%
+  summarise(
+    N = n(),
+    SUM_REVENUE = sum(REVENUE)
+  ) %>%
+  group_by(COUNTRY) %>%
+  summarise(
+    REVENUE_TOTAL = sum(SUM_REVENUE),
+    N_USUARIOS_UNICOS = n(),
+    ARPU = REVENUE_TOTAL/N_USUARIOS_UNICOS
+  )
+```
+
+La siguiente métrica que vamos a calcular es ARPPU (Average Revenue Per Paying User). Se ha convertido en la manera de medir ingresos en juegos que permiten compras dentro de ellos.
+
+```{r message=FALSE, warning=FALSE}
+ARPPU <- datos_ej1 %>%
+  select(COUNTRY, ID_USER, REVENUE) %>%
+  filter(REVENUE > 0) %>%
+  group_by(COUNTRY, ID_USER) %>%
+  summarise(
+    N = n(),
+    SUM_REVENUE = sum(REVENUE)
+  ) %>%
+  group_by(COUNTRY) %>%
+  summarise(
+    REVENUE_TOTAL = sum(SUM_REVENUE),
+    N_USUARIOS_PAGADORES_UNICOS = n(),
+    ARPPU = REVENUE_TOTAL/N_USUARIOS_PAGADORES_UNICOS
+  )
+```
+Si comparamos ARPU y ARPPU vemos que en el juego el gasto medio entre todos los ususarios es relativamente bajo. Pero una vez que nos fijamos en el gasto que hacen los ususarios que realizan compras en el juego es una cantidad bastante elevada, sobrepasando los 400 en todos los paises e incluso llegando a sobrepasar los 900 en Francia.
+
+
+Para acabar calculamos ARPDAU (Average Revenue Per Daily Active User). Mide los ingresos medios de los usuarios que han utilizado la aplicación en un día. 
+
+```{r message=FALSE, warning=FALSE}
+ARPDAU <- datos_ej1 %>%
+  select(COUNTRY, SESSION_DATE, ID_USER, REVENUE) %>%
+  group_by(COUNTRY,SESSION_DATE, ID_USER) %>%
+  summarise(
+    N = n(),
+    SUM_REVENUE = sum(REVENUE)
+  ) %>%
+  group_by(COUNTRY, SESSION_DATE) %>%
+  summarise(
+    REVENUE_TOTAL = sum(SUM_REVENUE),
+    N_USUARIOS_UNICOS = n(),
+    ARPDAU = REVENUE_TOTAL / N_USUARIOS_UNICOS
+  ) %>%
+  group_by(COUNTRY) %>%
+  summarise(
+    ARPDAU_MEDIO = sum(ARPDAU)/11 
+  )
 ```
 
 
@@ -165,7 +250,7 @@ Podemos ver que en este caso la mayoría de los datos se distribuyen entre 0 y 4
 
 ### 1.3. Comportamiento de la media de sesiones y tiempo medio jugado por sesión del día 0 VS el resto de días.
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 m <- datos_ej1 %>%
   group_by(SESSION_DATE) %>%
   summarise(
@@ -182,7 +267,7 @@ tMJ <- datos_ej1 %>%
   ) %>%
   arrange(SESSION_DATE)
 ```
-```{r}
+```{r message=FALSE, warning=FALSE}
 #sesiones repetidas
 
 datos_ej1 %>%
@@ -227,6 +312,7 @@ g_disp_COMPLETED_LEVELS <- datos_ej1 %>%
 
 g_disp_REVENUE/g_disp_GAMETIME/g_disp_COMPLETED_LEVELS
 ```
+
 Viendo la sitribución de los ingresos nos lleva a pensar si existe algun tipo de relación entre los ingresos y el tiempo de las sesiones. ¿Los usuarios que ingresan más dinero en el juego son los que tienen las sesiones más largas?¿Existe alguna relación?
 
 ```{r}
@@ -234,7 +320,7 @@ corrSessRev <- datos_ej1 %>%
   select(ID_USER, ID_SESSION,GAME_TIME,REVENUE) %>%
   ggplot() +
   theme_classic() +
-  geom_point(aes(x=GAME_TIME/1000, y=REVENUE))
+  geom_point(aes(x=GAME_TIME/1000, y=REVENUE),alpha = 0.5)
 
 corrSessRev
 ```
@@ -252,7 +338,7 @@ corrDayGameTime <- datos_ej1 %>%
   select(INSTALL_DATE,SESSION_DATE,GAME_TIME,COMPLETED_LEVELS,DAY_DIFF) %>%
   ggplot() +
   theme_classic() +
-  geom_point(aes(x=GAME_TIME/1000, y=DAY_DIFF))
+  geom_point(aes(x=GAME_TIME/1000, y=DAY_DIFF),alpha = 0.5)
 
 corrDayGameTime
 ```
@@ -274,13 +360,3 @@ corrLevGameTime
 Aquí sí que podemos ver que existe una correlación. Podemos decir que la cantidad de niveles superados por los jugadores depende del tiempo de la sesión. Esto tiene cierta lógica, ya que es imposible conseguir superara una gran cantidad de niveles en un corto tiempo. Por muy bueno que sea el jugador lo sniveles tienen un tiempo mínimo para ser completados.
 
 Por otra parte podemos decir que la cantidad de niveles superados y el tiempode cada sesión no guardan relación con la nacionalidad del jugador. No podemos observar ningún patrón en los datos que nos permita afirmar lo contrario.
-
-```{r}
-corrLevGameTime2 <- datos_ej1 %>%
-  select(ID_USER, ID_SESSION,GAME_TIME,COMPLETED_LEVELS,COUNTRY) %>%
-  ggplot(aes(x=GAME_TIME/1000, y=COMPLETED_LEVELS)) +
-  geom_point() +
-  stat_bin2d(aes(fill = after_stat(count)), binwidth = c(3,1))
-
-corrLevGameTime2
-```
