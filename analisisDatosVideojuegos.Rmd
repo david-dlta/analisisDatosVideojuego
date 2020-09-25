@@ -11,12 +11,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introducción
 
-El documento se engloba dentro de una serie de documentos de análisis de datos de videojuegos.En esta serie se estudian varias metricas e indicadores comunes en el negocio de los videojuegos. Este es el primero de 3 documentos.
+El documento se engloba dentro de una serie de documentos de análisis de datos de videojuegos. En esta serie se estudian varias metricas e indicadores comunes en el negocio de los videojuegos. Este es el primero de 3 documentos.
 
 
 # Objetivo
 
-El objetivo de este documento es contestar a las preguntas que componen el ejercicio 1.Con este ejercicio se pretende analizar datos y calcular métricas de sesiones.
+El objetivo de este documento es contestar a las preguntas que componen el ejercicio 1. Con este ejercicio se pretende analizar datos y calcular métricas de sesiones.
 
 Los datos necesarios para resolver los ejercicios se encuentran en la carpeta _datos_ del proyecto.
 
@@ -50,7 +50,7 @@ library(dplyr)
 ```
 
 
-### 1.1 Obtener algunas métricas por país
+### 1.1 Obtener algunas métricas por país:
 
 La media de sesiones, tiempo medio jugado, tiempo jugado por sesión, niveles completados lo obtenemos de la siguiente manera:
 
@@ -91,7 +91,6 @@ nivelesCompletados <- datos_ej1 %>%
   summarise(
     media_COMPLETED_LEVELS = mean(COMPLETED_LEVELS)
   )
-  
 ```
 
 Y los resuyltados de las métricas anteriores serían:
@@ -131,6 +130,7 @@ porcPagadores <- inner_join(nPagadores, nJugadores, by = "COUNTRY") %>%
   select(COUNTRY, porcPagadores)
 
 ```
+
 Continuamos calculando la métrica ARPU (Average Revenue Per User). Es la manera más rápida para observar como la apliacción se está comportando y es muy útil para observar la efectividad de campañas. Para calcularlo tenemos que sacar el total de ingresos de la aplicación y dividirlo entre el numero de usuarios (instalaciones).
 
 ```{r message=FALSE, warning=FALSE}
